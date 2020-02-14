@@ -302,8 +302,8 @@ export class DetectIndentation extends EditorAction {
 export class ReindentLinesAction extends EditorAction {
 	constructor() {
 		super({
-			id: 'editor.action.reindentlines',
-			label: nls.localize('editor.reindentlines', "Reindent Lines"),
+			id: 'editor.action.reindentLines',
+			label: nls.localize('editor.reindentLines', "Reindent Lines"),
 			alias: 'Reindent Lines',
 			precondition: EditorContextKeys.writable
 		});
@@ -326,8 +326,8 @@ export class ReindentLinesAction extends EditorAction {
 export class ReindentSelectedLinesAction extends EditorAction {
 	constructor() {
 		super({
-			id: 'editor.action.reindentselectedlines',
-			label: nls.localize('editor.reindentselectedlines', "Reindent Selected Lines"),
+			id: 'editor.action.reindentSelectedLines',
+			label: nls.localize('editor.reindentSelectedLines', "Reindent Selected Lines"),
 			alias: 'Reindent Selected Lines',
 			precondition: EditorContextKeys.writable
 		});
