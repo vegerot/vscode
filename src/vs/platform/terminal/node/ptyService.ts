@@ -34,6 +34,7 @@ import pkg from '@xterm/headless';
 import { AutoRepliesPtyServiceContribution } from './terminalContrib/autoReplies/autoRepliesContribController.js';
 import { hasKey, isFunction, isNumber, isString } from '../../../base/common/types.js';
 import { getWindowsBuildNumberAsync } from '../../../base/node/windowsVersion.js';
+import { installFlagEmojiHandler } from '../common/xterm/flagEmojiUnicodeProvider.js';
 
 type XtermTerminal = pkg.Terminal;
 const { Terminal: XtermTerminal } = pkg;
@@ -1033,6 +1034,7 @@ class XtermSerializer implements ITerminalSerializer {
 	private readonly _xterm: XtermTerminal;
 	private readonly _shellIntegrationAddon: ShellIntegrationAddon;
 	private _unicodeAddon?: XtermUnicode11Addon;
+	private readonly _flagEmojiWrappedVersions = new Set<string>();
 
 	constructor(
 		cols: number,
@@ -1109,6 +1111,7 @@ class XtermSerializer implements ITerminalSerializer {
 
 	async setUnicodeVersion(version: '6' | '11'): Promise<void> {
 		if (this._xterm.unicode.activeVersion === version) {
+			this._installFlagEmojiHandler();
 			return;
 		}
 		if (version === '11') {
@@ -1119,6 +1122,14 @@ class XtermSerializer implements ITerminalSerializer {
 			this._unicodeAddon = undefined;
 		}
 		this._xterm.unicode.activeVersion = version;
+		this._installFlagEmojiHandler();
+	}
+
+	private _installFlagEmojiHandler(): void {
+		const unicodeService = (this._xterm as unknown as { _core?: { unicodeService?: unknown } })._core?.unicodeService;
+		if (unicodeService) {
+			installFlagEmojiHandler(unicodeService, this._flagEmojiWrappedVersions);
+		}
 	}
 
 	async _getUnicode11Constructor(): Promise<typeof Unicode11Addon> {

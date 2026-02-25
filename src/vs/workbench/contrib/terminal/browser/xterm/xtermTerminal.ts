@@ -47,6 +47,7 @@ import type { IProgressState } from '@xterm/addon-progress';
 import type { CommandDetectionCapability } from '../../../../../platform/terminal/common/capabilities/commandDetectionCapability.js';
 import { URI } from '../../../../../base/common/uri.js';
 import { isNumber } from '../../../../../base/common/types.js';
+import { installFlagEmojiHandler } from '../../../../../platform/terminal/common/xterm/flagEmojiUnicodeProvider.js';
 
 const enum RenderConstants {
 	SmoothScrollDuration = 125
@@ -1032,6 +1033,24 @@ export class XtermTerminal extends Disposable implements IXtermTerminal, IDetach
 		if (this.raw.unicode.activeVersion !== this._terminalConfigurationService.config.unicodeVersion) {
 			this.raw.unicode.activeVersion = this._terminalConfigurationService.config.unicodeVersion;
 		}
+		this._installFlagEmojiHandler();
+	}
+
+	private _installedFlagEmojiProviderVersions = new Set<string>();
+
+	/**
+	 * Installs the flag emoji handler for any unicode providers that haven't
+	 * been wrapped yet. This ensures Regional Indicator pairs (flag emojis)
+	 * are properly joined into single cells.
+	 *
+	 * See https://github.com/microsoft/vscode/issues/292946
+	 */
+	private _installFlagEmojiHandler(): void {
+		const unicodeService = (this._core as IXtermCore & { unicodeService?: unknown }).unicodeService;
+		if (!unicodeService) {
+			return;
+		}
+		installFlagEmojiHandler(unicodeService, this._installedFlagEmojiProviderVersions);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/naming-convention
